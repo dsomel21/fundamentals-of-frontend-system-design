@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Frontend System Design Fundamentals</title>
-    <link rel="stylesheet" href="./index.css">
+  <meta charset="UTF-8">
+  <title>Frontend System Design Fundamentals</title>
+  <link rel="stylesheet" href="./index.css">
 </head>
+
 <body>
-<main id="container"></main>
+  <main id="container"></main>
 </body>
 <script>
-    const container = document.getElementById('container');
-    const html = `<article class="card">
+  const container = document.getElementById('container');
+  const html = `<article class="card">
     <h3 class="card__title"></h3>
     <div class="card__body">
       <div class='card__body__image'></div>
@@ -19,21 +21,45 @@
     </div>
   </article>`;
 
-    /**
-     * @param {string} title
-     * @param {string} body
-     *
-     * @return {HTMLElement
-     */
-    function createCardComponent(title, body) {
-        // @todo - Implement function
-    }
+  /**
+   * @param {string} title
+   * @param {string} body
+   *
+   * @return {HTMLElement
+   */
+  function createCardComponent(title, body) {
+    const card = document.createElement('article');
+    card.classList.add('card');
 
-    const component = createCardComponent(
-        "Frontend System Design: Fundamentals",
-        "This is a random body text"
-    );
+    const h3Element = document.createElement('h3');
+    h3Element.classList.add('card__title');
+    h3Element.textContent = title;
 
-    container.appendChild(component);
+    const bodyElement = document.createElement('div');
+    bodyElement.classList.add('card__body');
+
+    const imageElement = document.createElement('div');
+    imageElement.classList.add('card__body__image');
+    bodyElement.appendChild(imageElement);
+
+    const contentElement = document.createElement('section');
+    contentElement.classList.add('card__body__content');
+    contentElement.appendChild(document.createTextNode(body));
+    bodyElement.appendChild(contentElement);
+
+    // Add `h3Element` and `bodyElement` to `card`
+    card.appendChild(h3Element);
+    card.appendChild(bodyElement);
+
+    return card;
+  }
+
+  const component = createCardComponent(
+    "Frontend System Design: Fundamentals",
+    "This is a random body text"
+  );
+
+  container.appendChild(component);
 </script>
+
 </html>
