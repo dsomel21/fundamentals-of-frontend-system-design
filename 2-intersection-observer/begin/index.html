@@ -56,10 +56,17 @@
     async function handleIntersection([entry]) {
       if (entry.isIntersecting) {
         const items = await db.getPage(page++);
+
+        // Create a DocumentFragment to batch all DOM mutations
+        const fragment = document.createDocumentFragment();
+
         items.forEach(element => {
           const card = createCardElement(element.title, element.body);
-          document.getElementById('list').appendChild(card);
+          fragment.appendChild(card);
         });
+
+        // Single DOM mutation - append all cards at once
+        list.appendChild(fragment);
       }
     }
 
