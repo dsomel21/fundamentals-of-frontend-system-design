@@ -1,43 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Frontend System Design Fundamentals</title>
-    <link rel="stylesheet" href="../../styles/index.css">
-    <template id="card_template">
-        <article class="card">
-            <h3 class="card__title"></h3>
-            <div class="card__body">
-                <div class='card__body__image'></div>
-                <section class='card__body__content'>
-                </section>
-            </div>
-        </article>
-    </template>
+  <meta charset="UTF-8">
+  <title>Frontend System Design Fundamentals</title>
+  <link rel="stylesheet" href="../../styles/index.css">
+  <template id="card_template">
+    <article class="card">
+      <h3 class="card__title"></h3>
+      <div class="card__body">
+        <div class='card__body__image'></div>
+        <section class='card__body__content'>
+        </section>
+      </div>
+    </article>
+  </template>
 </head>
+
 <body>
-<main id="container">
+  <main id="container">
     <div id="list"></div>
     <div id="bottom-observer">
-        Bottom Observer
+      Bottom Observer
     </div>
-</main>
-<script type="module">
-    import {initMockDB} from "../../utils/db.js";
+  </main>
+  <script type="module">
+    import { initMockDB } from "../../utils/db.js";
 
     const [template, list, observerElement] = document.querySelectorAll("#card_template, #list, #bottom-observer");
 
     const db = initMockDB({
-        title: "Fundamentals of Frontend System Design",
-        body: "Learning to use Intersection Observer"
+      title: "Fundamentals of Frontend System Design",
+      body: "Learning to use Intersection Observer"
     });
 
     function createCardElement(title, body) {
-        const element = template.content.cloneNode(true).firstElementChild;
-        const [cardTitle, cardBody] = element.querySelectorAll('.card__title, .card__body__content');
-        [cardTitle.textContent, cardBody.textContent] = [title, body];
-        return element;
+      const element = template.content.cloneNode(true).firstElementChild;
+      const [cardTitle, cardBody] = element.querySelectorAll('.card__title, .card__body__content');
+      [cardTitle.textContent, cardBody.textContent] = [title, body];
+      return element;
     }
+
+
 
     /**
      * Exercise - Intersection Observer
@@ -47,8 +51,29 @@
      * 4. Update fragment
      * 5. Append fragment to "list" container
      */
-    const observer = null;
 
-</script>
+    let page = 0;
+    async function handleIntersection([entry]) {
+      if (entry.isIntersecting) {
+        const items = await db.getPage(page++);
+        items.forEach(element => {
+          const card = createCardElement(element.title, element.body);
+          document.getElementById('list').appendChild(card);
+        });
+      }
+    }
+
+    const options = {
+      rootMargin: "0px",
+      scrollMargin: "0px",
+      threshold: 1.0,
+    }
+
+    const observer = new IntersectionObserver(handleIntersection, options);
+    observer.observe(observerElement)
+    console.log('hi')
+
+  </script>
 </body>
+
 </html>
