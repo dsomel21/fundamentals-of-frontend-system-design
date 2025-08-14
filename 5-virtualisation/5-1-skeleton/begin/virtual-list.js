@@ -142,7 +142,6 @@ export class VirtualList {
   async #handleBottomObserver() {
     const data = await this.props.getPage(this.end++);
     const list = getVirtualList();
-    console.log("data is ", data);
 
     if (this.pool.length < this.limit) {
       const fragment = new DocumentFragment();
@@ -159,12 +158,10 @@ export class VirtualList {
         this.pool.slice(this.props.pageSize),
       ];
 
-      debugger;
       this.pool = unchanged.concat(toRecycle);
       this.#updateData(toRecycle, data);
     }
-
-    // Convert data to the HTML element
+    this.#updateElementsPosition("down");
   }
 
   async #handleTopObserver() {}
@@ -189,8 +186,28 @@ export class VirtualList {
   #updateElementsPosition(direction) {
     const [top, bottom] = getObservers();
     if (direction === "down") {
+      for (let i = 0; i < this.pool.length; i++) {
+        // Get the previous and current element because we need to move the current element to the previous element's position
+        const [prev, current] = [this.pool.at(i - 1), this.pool[i]];
+        // If the previous element is not on the screen, we need to move the current element to the top of the screen
+        if (y(prev) == null) {
+          y(current, 0);
+        } else {
+          const newY =
+            y(prev) + MARGIN * 2 + prev.getBoundingClientRect().height;
+          y(current, newY);
+          current.style.transform = translateY(newY);
+        }
+      }
     } else if (direction === "top") {
       // To implement
     }
+
+    const [first, last] = [this.pool.at(0), this.pool.at(-1)];
+    const topY = y(first);
+    const bottomY = y(last) + MARGIN * 2 + last.getBoundingClientRect().height;
+
+    top.style.transform = translateY(topY);
+    bottom.style.transform = translateY(bottomY);
   }
 }
