@@ -1,76 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Frontend System Design Fundamentals</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            height: 100vh
-        }
-        #container {
-            margin: 0 auto;
-            width: 600px;
-            display:grid;
-            grid-template-columns: 50% 50%;
-            grid-row-gap: 2rem;
-            grid-column-gap: 2rem;
-        }
-        .box {
-            margin: 2rem;
-            width: 100%;
-            min-width: 100px;
-            min-height: 100px;
-            height: 100%;
-            border: 2px solid black;
-            resize: both;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .box:nth-child(1) {
-            background: rgba(0, 255, 0, 0.5);
-        }
-        .box:nth-child(2) {
-            background: rgba(255, 255, 0, 0.5);
-        }
-        .box:nth-child(3) {
-            background: rgba(255, 0, 0, 0.5);
-        }
-        .box:nth-child(4) {
-            background: rgba(0, 0, 255, 0.5);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Frontend System Design Fundamentals</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh
+    }
+
+    #container {
+      margin: 0 auto;
+      width: 600px;
+      display: grid;
+      grid-template-columns: 50% 50%;
+      grid-row-gap: 2rem;
+      grid-column-gap: 2rem;
+    }
+
+    .box {
+      margin: 2rem;
+      width: 100%;
+      min-width: 100px;
+      min-height: 100px;
+      height: 100%;
+      border: 2px solid black;
+      resize: both;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box:nth-child(1) {
+      background: rgba(0, 255, 0, 0.5);
+    }
+
+    .box:nth-child(2) {
+      background: rgba(255, 255, 0, 0.5);
+    }
+
+    .box:nth-child(3) {
+      background: rgba(255, 0, 0, 0.5);
+    }
+
+    .box:nth-child(4) {
+      background: rgba(0, 0, 255, 0.5);
+    }
+  </style>
 </head>
+
 <body>
-<main id="container">
+  <main id="container">
     <div class="box">
-        A
+      A
     </div>
     <div class="box">
-        B
+      B
     </div>
     <div class="box">
-        C
+      C
     </div>
     <div class="box">
-        D
+      D
     </div>
-</main>
-<script type="module">
+  </main>
+  <script type="module">
+    const handleResize = (entries) => {
+      for (const entry of entries) {
+        const { inlineSize, blockSize } = entry.contentBoxSize[0];
+        if (inlineSize < 150 && blockSize < 150) {
+          entry.target.style.borderRadius = '100%';
+          entry.target.style.borderWidth = '4px';
+        } else {
+          entry.target.style.borderRadius = 'unset';
+          entry.target.style.borderWidth = 'unset';
+        }
+      }
+    }
+
+    const observer = new ResizeObserver(handleResize);
+    const boxes = document.querySelectorAll('.box');
+    boxes.forEach(box => observer.observe(box, { box: 'content-box' }));
+
     /*
      * 1. Initiate Resize observer
-     * 2. Implement callback - use inlineSize and blockSize of the entries for width and height
+     * 2. Implement callback - use entry.contentBoxSize[0].inlineSize and entry.contentBoxSize[0].blockSize to get the width and height of the resized element
      * 3. If width and height is less than 150px
      *   3.1 - Apply border-radius: 100%
      *   3.2 - Apply border-width: 4px
      * 4. If width and height is more than 150px = unset the properties above
      * 5. All 4 boxes should use same observer
      */
-</script>
+  </script>
 </body>
+
 </html>

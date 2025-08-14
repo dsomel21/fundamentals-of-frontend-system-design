@@ -1,72 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Frontend System Design Fundamentals</title>
-    <link rel="stylesheet" href="../../styles/index.css">
-    <template id="card_template">
-        <article class="card">
-            <h3 class="card__title"></h3>
-            <div class="card__body">
-                <div class='card__body__image'></div>
-                <section class='card__body__content'>
-                </section>
-            </div>
-        </article>
-    </template>
+  <meta charset="UTF-8">
+  <title>Frontend System Design Fundamentals</title>
+  <link rel="stylesheet" href="../../styles/index.css">
+  <template id="card_template">
+    <article class="card">
+      <h3 class="card__title"></h3>
+      <div class="card__body">
+        <div class='card__body__image'></div>
+        <section class='card__body__content' contenteditable="true">
+        </section>
+      </div>
+    </article>
+  </template>
 </head>
+
 <body>
-<main id="container">
+  <main id="container">
     <div id="list"></div>
     <div id="bottom-observer">
-        Bottom Observer
+      Bottom Observer
     </div>
-</main>
-<script type="module">
-    import {createCardElement, getHeading} from "./utils.js";
-    import {initMockDB} from "../../utils/db.js";
+  </main>
+  <script type="module">
+    import { createCardElement, getHeading } from "./utils.js";
+    import { initMockDB } from "../../utils/db.js";
 
     const SUPPORTED_ELEMENTS = new Set([
-        '/h1',
-        '/h2',
-        '/h3'
+      '/h1',
+      '/h2',
+      '/h3'
     ]);
 
     const db = initMockDB({
-        title: "Fundamentals of Frontend System Design",
-        body: "Learning to use Intersection Observer"
+      title: "Fundamentals of Frontend System Design",
+      body: "Learning to use Intersection Observer"
     });
     const list = document.getElementById('list');
     const observerElement = document.getElementById('bottom-observer');
 
-    const mutationObserver = new MutationObserver((_) => {
-        /*
-         * @todo
-         *
-         * 1. Loop through mutations (first arg of callback)
-         * 2. use mutation.type === 'characterData'
-         * 3. When the content matches with any supported tag in SUPPORTED_ELEMENTS
-         *    use getHeading function to convert text to HTMLHeading element
-         * 4. Replace the node with a newly created node
-         * 5. Keep focus on the element
-         */
+    const mutationObserver = new MutationObserver(([mutation]) => {
+      if (mutation.type === 'characterData' && SUPPORTED_ELEMENTS.has(mutation.target.textContent)) {
+        const heading = getHeading(mutation.target);
+        mutation.target.replaceWith(heading);
+      }
+
+      /*
+       * @todo
+       *
+       * 1. Loop through mutations (first arg of callback)
+       * 2. use mutation.type === 'characterData'
+       * 3. When the content matches with any supported tag in SUPPORTED_ELEMENTS
+       *    use getHeading function to convert text to HTMLHeading element
+       * 4. Replace the node with a newly created node
+       * 5. Keep focus on the element
+       */
     })
     let page = 0;
     const observer = new IntersectionObserver(async ([bottom]) => {
-        if (bottom.isIntersecting) {
-            observerElement.textContent = "Loading";
-            const data = await db.getPage(page++);
-            const fragment = new DocumentFragment();
-            data.forEach(({title, body}) => {
-                const card = createCardElement(title, body);
-                fragment.appendChild(card);
-                // @todo register observer
-            });
+      if (bottom.isIntersecting) {
+        observerElement.textContent = "Loading";
+        const data = await db.getPage(page++);
+        const fragment = new DocumentFragment();
+        data.forEach(({ title, body }) => {
+          const card = createCardElement(title, body);
+          // Add MutationObserver to each element
+          mutationObserver.observe(card, {
+            characterData: true,        // Only watch text content changes
+            subtree: true,              // Watch all descendants
+            attributes: false,          // Don't watch attribute changes
+            childList: false,           // Don't watch DOM structure changes
+            attributeOldValue: false,   // Don't track old attribute values
+            characterDataOldValue: true // Track old text values for comparison
+          })
+          fragment.appendChild(card);
+          // @todo register observer
+        });
 
-            list.appendChild(fragment);
-        }
-    }, {threshold: 0.1})
+        list.appendChild(fragment);
+      }
+    }, { threshold: 0.1 })
     observer.observe(observerElement);
-</script>
+  </script>
 </body>
+
 </html>
